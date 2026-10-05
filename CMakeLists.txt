@@ -6,6 +6,16 @@ project(OptiCraftHeritage
     LANGUAGES C CXX
 )
 
+include(FetchContent)
+
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.17.0
+)
+
+FetchContent_MakeAvailable(spdlog)
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SourceSelection.cmake)
 
 # StrictMathCompat reproduces the operation ordering of Java StrictMath/fdlibm.
@@ -150,6 +160,7 @@ set(SDL_SHARED OFF CACHE BOOL "Build the SDL shared library" FORCE)
 set(SDL_STATIC ON CACHE BOOL "Build the SDL static library" FORCE)
 set(SDL_TEST OFF CACHE BOOL "Build the SDL test library" FORCE)
 set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Build zlib examples" FORCE)
+set(SDL_PIPEWIRE OFF CACHE BOOL "Disable PipeWire support in SDL2" FORCE)
 
 add_subdirectory(external/glad EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL2 EXCLUDE_FROM_ALL)
@@ -223,6 +234,11 @@ set_target_properties(OptiCraft PROPERTIES
     CXX_EXTENSIONS NO
 )
 
+# CREATE MACRO FOR LOG FILES
+if(WIN32 OR APPLE OR UNIX)
+    target_compile_definitions(OptiCraft PRIVATE TARGET_PC)
+endif()
+
 # A level, not a boolean, so it is passed through as-is rather than through
 # $<BOOL:>, which would collapse 2 to 1.
 target_compile_definitions(OptiCraft PRIVATE MC_LOG_LEVEL=${MC_LOG_LEVEL})
@@ -266,6 +282,7 @@ target_link_libraries(OptiCraft PRIVATE
     zlibstatic
     OpenGL::GL
     Threads::Threads
+    spdlog::spdlog
 )
 
 if(WIN32)
