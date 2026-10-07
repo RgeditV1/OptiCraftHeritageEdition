@@ -3,6 +3,10 @@
 #include <cstdarg>
 #include "platform/PlatformConfig.h"
 
+#ifdef TARGET_PC
+#include <spdlog/spdlog.h>
+#endif
+
 #ifndef MC_LOG_LEVEL
 #define MC_LOG_LEVEL 0
 #endif
@@ -51,7 +55,7 @@ enum class Level
 // the filesystem/install directory is known are buffered and replayed into the
 // file, so early boot diagnostics are not lost. Safe to call more than once;
 // the first successful open wins.
-bool openSessionFile(const char* directory);
+bool openSessionFile(const char* directory = "log");
 
 // Explicitly flushes the file sink. Error/warning messages are flushed
 // immediately; normal traffic is buffered to avoid turning debug logging into
