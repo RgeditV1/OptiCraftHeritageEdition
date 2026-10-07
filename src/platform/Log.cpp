@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <chrono>
 #include <ctime>
 #include <iomanip>

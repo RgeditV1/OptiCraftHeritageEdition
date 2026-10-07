@@ -10,6 +10,7 @@
 #include "client/Minecraft.h"
 #include "net/minecraft/src/GameResources.h"
 #include "net/minecraft/src/Tessellator.h"
+#include "platform/Log.h"
 
 #include "external/SDLException.h"
 
@@ -99,11 +100,16 @@ std::string loadUsername()
 
 int main(int argc, char *argv[])
 {
+	McLog::openSessionFile("log");
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0)
+	{	MC_LOG_ERROR("SDL", "SDL_Init failed: %s", SDL_GetError());
+		McLog::flush();
 		throw SDLException();
+	}
 	pcRenderBackendSetRequested(loadRenderBackendPreference());
 	lwjgl::GLContext::setRequestedSamples(loadOptiFineAaLevel());
 	lwjgl::GLContext::instantiate();
+	MC_LOG_INFO("Main", "OpenGL version: %s", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 #if PLATFORM_PC_LEGACY
 	Tessellator::convertQuadsToTriangles = !pcRenderBackendIsDirect3D9();
 #endif
@@ -116,7 +122,9 @@ int main(int argc, char *argv[])
 	if (argc >= 3 && std::strlen(argv[2]) > 1)
 		auth = argv[2];
 
+	MC_LOG_INFO("Main", "Starting Minecraft with username: %s, auth: %s", username.c_str(), auth.c_str());
 	Minecraft::start(&username, &auth);
+	McLog::flush();
 
 	return 0;
 }

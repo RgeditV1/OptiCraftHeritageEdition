@@ -6,15 +6,18 @@ project(OptiCraftHeritage
     LANGUAGES C CXX
 )
 
-include(FetchContent)
 
-FetchContent_Declare(
-    spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG v1.17.0
-)
+if(NOT PS2 AND NOT NINTENDO_WII AND NOT (DEFINED PLATFORM AND (PLATFORM STREQUAL "PS2" OR PLATFORM STREQUAL "WII")))
+    include(FetchContent)
 
-FetchContent_MakeAvailable(spdlog)
+    FetchContent_Declare(
+        spdlog
+        GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        GIT_TAG v1.17.0
+    )
+
+    FetchContent_MakeAvailable(spdlog)
+endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SourceSelection.cmake)
 
@@ -160,7 +163,6 @@ set(SDL_SHARED OFF CACHE BOOL "Build the SDL shared library" FORCE)
 set(SDL_STATIC ON CACHE BOOL "Build the SDL static library" FORCE)
 set(SDL_TEST OFF CACHE BOOL "Build the SDL test library" FORCE)
 set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Build zlib examples" FORCE)
-set(SDL_PIPEWIRE OFF CACHE BOOL "Disable PipeWire support in SDL2" FORCE)
 
 add_subdirectory(external/glad EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL2 EXCLUDE_FROM_ALL)
@@ -282,8 +284,11 @@ target_link_libraries(OptiCraft PRIVATE
     zlibstatic
     OpenGL::GL
     Threads::Threads
-    spdlog::spdlog
 )
+
+if(NOT PS2 AND NOT NINTENDO_WII)
+    target_link_libraries(OptiCraft PRIVATE spdlog::spdlog)
+endif()
 
 if(WIN32)
     target_compile_definitions(OptiCraft PRIVATE
